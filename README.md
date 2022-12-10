@@ -1,4 +1,34 @@
-We  release our CCL pretrained models  <a href="https://github.com/qinyideng/ccl/releases/tag/v0.1">here</a> .
+# Contrastive Complementary Labeling
+
+This repository is the official implementation of ``Boosting Semi-Supervised Learning with Contrastive Complementary Labeling``.
+
+The key contributions of this paper are as follows:
+
+*  We propose a novel Contrastive Complementary Labeling (CCL) method that constructs reliable negative pairs based on the complementary labels, i.e., the classes that a sample does not belong to. Indeed, our CCL effectively exploits low-confidence samples to provide additional information for the training process.
+*  We develop a complementary labeling strategy to construct reliable negative pairs. Specifically, for lowconfidence data, we first select multiple classes with the lowest probability as complementary labels. Then reliable complementary labels are applied to construct a large number of negative pairs, which greatly benefits the contrastive learning.
+*  Extensive experiments on multiple benchmark datasets show that CCL can be easily integrated with existing advanced pseudo-label-based end-to-end SSL methods (e.g., FixMatch) and finally yield better performance. Besides, under the label-scarce settings, CCL effectively unleashes the power of data with lowconfidence, thus achieving a significant improvement of 2.43%, 6.35%, and 1.78% on CIFAR-10, STL-10, and SVHN only with 40 labeled data, respectively.
+
+## 1. Requirements
+
+* To install requirements: 
+
+```
+pip install -r requirements.txt
+```
+
+## 2. Training
+
+* The configuration of CCL methods can be found in the directory ```config```. For example, we train CCL-FixMatch on CIFAR-10 with 40 labeled data, we can run this command:
+
+```
+python ccl_fixmatch.py --c config/ccl_fixmatch/cifar10/ccl_fixmatch_cifar10_40_seed0.yaml
+```
+
+## 3. Pretrained models
+
+* We  release our CCL pretrained models [here](https://github.com/qinyideng/ccl/releases/tag/v0.1). The schema of our pretrained models includes: {'model', 'optimizer', 'scheduler', 'it', 'ema_model', 'best_eval_acc',  'best_eval_iter'}, where 'it' denotes current iterations. 'best_eval_acc' denotes the best top-1 accuracy. 'best_eval_iter' denotes the iterations when obtaining the best top-1 accuracy.
+
+* CCL is helpful for FixMatch/FlexMatch for all benchmarks and CCL achieves better performance when the task contains more noise (i.e., fewer labels). 
 
 <table style="text-align:center">
     <tr>
@@ -34,6 +64,7 @@ We  release our CCL pretrained models  <a href="https://github.com/qinyideng/ccl
     </tr>
 </table>
 
+
 <table style="text-align:center">
     <tr>
         <td rowspan="2">Method</td>
@@ -68,7 +99,7 @@ We  release our CCL pretrained models  <a href="https://github.com/qinyideng/ccl
     </tr>
 </table>
 
-Under the lable-scare setting, 
+* Under the lable-scare setting, CCL-FixMatch/CCL-FlexMatch also significantly improves the accuracy.
 
 <table style="text-align:center">
     <tr>
@@ -104,3 +135,14 @@ Under the lable-scare setting,
     </tr>
 </table>
 
+## 4. Citaiton 
+
+* If you find our work inspiring or use our codebase in your research, please cite our work.
+
+```
+xxxx
+```
+
+## 5. Acknowledgements
+
+* This project is developed based on [TorchSSL](https://github.com/TorchSSL/TorchSSL).
