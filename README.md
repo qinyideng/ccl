@@ -18,7 +18,7 @@ pip install -r requirements.txt
 
 ## 2. Training
 
-* The configuration of CCL methods can be found in the directory ```config```. For example, we train CCL-FixMatch on CIFAR-10 with 40 labeled data, we can run this command:
+* The configuration of CCL methods can be found in the directory ```config```. For example, to train CCL-FixMatch on CIFAR-10 with 40 labeled data, we can run this command:
 
 ```
 python ccl_fixmatch.py --c config/ccl_fixmatch/cifar10/ccl_fixmatch_cifar10_40_seed0.yaml
@@ -145,4 +145,4 @@ xxxx
 
 ## 5. Acknowledgements
 
-* This project is developed based on [TorchSSL](https://github.com/TorchSSL/TorchSSL).
+* The project is developed based on [TorchSSL](https://github.com/TorchSSL/TorchSSL).
