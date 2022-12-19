@@ -47,7 +47,7 @@ python ccl_fixmatch.py --c config/ccl_fixmatch/cifar10/ccl_fixmatch_cifar10_40_s
     <tr>
         <td>CCL-FixMatch</td>
         <td>95.07 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar10_40_acc.95.07.pth">download</a></td>
-        <td>-</td>
+        <td>95.18 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar10_250_acc.95.18.pth">download</a></td>
         <td>95.87 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar10_4000_acc.95.87.pth">download</a></td>
         <td>54.41 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar100_400_acc.54.41.pth">download</a></td>
         <td>72.19 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar100_2500_acc.72.19.pth">download</a></td>
@@ -57,7 +57,7 @@ python ccl_fixmatch.py --c config/ccl_fixmatch/cifar10/ccl_fixmatch_cifar10_40_s
         <td>CCL-FlexMatch</td>
         <td>95.12 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_flexmatch_cifar10_40_acc.95.12.pth">download</a></td>
         <td>-</td>
-        <td>-</td>
+        <td>95.92 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_flexmatch_cifar10_4000_acc.95.92.pth">download</a></td>
         <td>62.20 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_flexmatch_cifar100_400_acc.62.20.pth">download</a></td>
         <td>73.77 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_flexmatch_cifar100_2500_acc.73.77.pth">download</a></td>
         <td>78.17 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_flexmatch_cifar100_10000_acc.78.17.pth">download</a></td>
