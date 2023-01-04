@@ -86,7 +86,7 @@ python ccl_fixmatch.py --c config/ccl_fixmatch/cifar10/ccl_fixmatch_cifar10_40_s
         <td>94.13 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_stl10_1000_acc.94.13.pth">download</a></td>
         <td>98.04 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_svhn_40_acc.98.04.pth">download</a></td>
         <td>98.04 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_svhn_250_acc.98.04.pth">download</a></td>
-        <td>-</td>
+        <td>98.11 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_svhn_1000_acc.98.11.pth">download</a></td>
     </tr>
     <tr>
         <td>CCL-FlexMatch</td>
