@@ -39,4 +39,4 @@ world_size: 1
 rank: 0
 multiprocessing_distributed: False
 dist_backend: nccl
-gpu: 2
+gpu: 0
