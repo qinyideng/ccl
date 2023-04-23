@@ -1,14 +1,14 @@
 save_dir: /home/Dengqy/checkpoints/ccl
 load_path: /home/Dengqy/checkpoints/ccl/ccl_flexmatch_cifar10_10_seed2/checkpoint.pth.tar
 data_dir: /home/pc/utils/dataset
-save_name: ccl_flexmatch_cifar10_10_seed1
+save_name: ccl_flexmatch_cifar10_10_seed2
 dist_url: tcp://127.0.0.1:33903
 dataset: cifar10
 num_labels: 10
 num_classes: 10
 p_cutoff: 0.95
 seed: 2
-k: 7
+k: 0.7
 resume: True
 overwrite: True
 use_tensorboard: True

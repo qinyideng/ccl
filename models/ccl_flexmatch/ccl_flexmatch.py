@@ -1,28 +1,34 @@
+import pickle
 import json
 import torch
+import numpy as np
+import pandas as pd
+import torch.nn as nn
 import torch.nn.functional as F
+import torchvision.models as models
 from torch.cuda.amp import autocast, GradScaler
 from collections import Counter
 import os
 import contextlib
+from train_utils import AverageMeter
 
 from .ccl_flexmatch_utils import consistency_loss, Get_Scalar
-from train_utils import ce_loss, EMA, Bn_Controller
+from train_utils import ce_loss, wd_loss, EMA, Bn_Controller
 
 from sklearn.metrics import *
 from copy import deepcopy
 
 
 class CCL_FlexMatch:
-    def __init__(self, net_builder, num_classes, ema_m, T, p_cutoff, hard_label=True, t_fn=None, p_fn=None, it=0, num_eval_iter=1024, tb_log=None, logger=None):
+    def __init__(self, net_builder, num_classes, ema_m, T,
+                 hard_label=True, it=0, num_eval_iter=1024, tb_log=None, logger=None):
         """
-        class CCL_Flexmatch contains setter of data_loader, optimizer, and model update methods.
+        class Flexmatch contains setter of data_loader, optimizer, and model update methods.
         Args:
             net_builder: backbone network class (see net_builder in utils.py)
             num_classes: # of label classes
             ema_m: momentum of exponential moving average for eval_model
             T: Temperature scaling parameter for output sharpening (only when hard_label = False)
-            p_cutoff: confidence cutoff parameters for loss masking
             hard_label: If True, consistency regularization use a hard pseudo label.
             it: initial iteration count
             num_eval_iter: freqeuncy of iteration (after 500,000 iters)
@@ -40,12 +46,11 @@ class CCL_FlexMatch:
         # create the encoders
         # network is builded only by num_classes,
         # other configs are covered in main.py
+
         self.model = net_builder(num_classes=num_classes)
         self.ema_model = None
 
         self.num_eval_iter = num_eval_iter
-        self.t_fn = Get_Scalar(T)  # temperature params function
-        self.p_fn = Get_Scalar(p_cutoff)  # confidence cutoff function
         self.tb_log = tb_log
         self.use_hard_label = hard_label
 
@@ -80,11 +85,12 @@ class CCL_FlexMatch:
         self.model.train()
         self.ema = EMA(self.model, self.ema_m)
         self.ema.register()
-        if args.resume == True:
+        if args.resume:
             self.ema.load(self.ema_model)
 
         # p(y) based on the labeled examples seen during training
-        dist_file_name = r"./data_statistics/" + args.dataset + '_' + str(args.num_labels) + '.json'
+        dist_file_name = r"./data_statistics/" + \
+            args.dataset + '_' + str(args.num_labels) + '.json'
         if args.dataset.upper() == 'IMAGENET':
             p_target = None
         else:
@@ -103,7 +109,6 @@ class CCL_FlexMatch:
         end_run = torch.cuda.Event(enable_timing=True)
 
         start_batch.record()
-        # Multiple scheduling mechanism for timeout termination adapted to supercomputing platform
         if self.best_eval_acc is None:
             self.best_eval_acc = 0.0
         if self.best_eval_iter is None:
@@ -112,7 +117,8 @@ class CCL_FlexMatch:
         scaler = GradScaler()
         amp_cm = autocast if args.amp else contextlib.nullcontext
 
-        selected_label = torch.ones((len(self.ulb_dset),), dtype=torch.long, ) * -1
+        selected_label = torch.ones(
+            (len(self.ulb_dset),), dtype=torch.long, ) * -1
         selected_label = selected_label.cuda(args.gpu)
 
         classwise_acc = torch.zeros((args.num_classes,)).cuda(args.gpu)
@@ -130,24 +136,25 @@ class CCL_FlexMatch:
             num_lb = x_lb.shape[0]
             num_ulb = x_ulb_w.shape[0]
             assert num_ulb == x_ulb_s.shape[0]
-
             device = torch.device('cuda', index=args.gpu)
-            x_lb, x_ulb_w, x_ulb_s = x_lb.cuda(args.gpu), x_ulb_w.cuda(args.gpu), x_ulb_s.cuda(args.gpu)
+            x_lb, x_ulb_w, x_ulb_s = x_lb.cuda(args.gpu), x_ulb_w.cuda(
+                args.gpu), x_ulb_s.cuda(args.gpu)
             x_ulb_idx = x_ulb_idx.cuda(args.gpu)
             y_lb = y_lb.cuda(args.gpu)
 
             pseudo_counter = Counter(selected_label.tolist())
-
             if max(pseudo_counter.values()) < len(self.ulb_dset):  # not all(5w) -1
                 if args.thresh_warmup:
                     for i in range(args.num_classes):
-                        classwise_acc[i] = pseudo_counter[i] / max(pseudo_counter.values())
+                        classwise_acc[i] = pseudo_counter[i] / \
+                            max(pseudo_counter.values())
                 else:
                     wo_negative_one = deepcopy(pseudo_counter)
                     if -1 in wo_negative_one.keys():
                         wo_negative_one.pop(-1)
                     for i in range(args.num_classes):
-                        classwise_acc[i] = pseudo_counter[i] / max(wo_negative_one.values())
+                        classwise_acc[i] = pseudo_counter[i] / \
+                            max(wo_negative_one.values())
 
             inputs = torch.cat((x_lb, x_ulb_w, x_ulb_s))
 
@@ -162,49 +169,47 @@ class CCL_FlexMatch:
                 del features
                 sup_loss = ce_loss(logits_x, y_lb, reduction='mean')
 
-                # hyper-params for update
-                T = self.t_fn(self.it)
-                p_cutoff = self.p_fn(self.it)
+                pseudo_label, unsup_loss, over_thre_mask, less_thre_mask, p_targets_u = consistency_loss(
+                    logits_u_s, logits_u_w, classwise_acc, p_target, p_model, 'ce', args.T, args.p_cutoff, use_hard_labels=args.hard_label)
 
-                unsup_loss, mask, select, pseudo_lb, p_model = consistency_loss(logits_u_s,
-                                                                                logits_u_w,
-                                                                                classwise_acc,
-                                                                                p_target,
-                                                                                p_model,
-                                                                                'ce', T, p_cutoff,
-                                                                                use_hard_labels=args.hard_label,
-                                                                                use_DA=args.use_DA)
-
-                if x_ulb_idx[select == 1].nelement() != 0:
-                    selected_label[x_ulb_idx[select == 1]] = pseudo_lb[select == 1]
-
-                pseudo_label = torch.softmax(logits_u_w.detach(), dim=-1)
-                max_probs, p_targets_u = torch.max(pseudo_label, dim=-1)
-                # Get features and pseudo labels of unlabeled data greater than threshold
-                over_thre_mask = max_probs.ge(args.p_cutoff * (classwise_acc[p_targets_u] / (2. - classwise_acc[p_targets_u])))
-                over_thre_features = torch.cat((features_x, features_u_w[over_thre_mask]), 0)
-                over_thre_features = torch.cat((over_thre_features, features_u_s[over_thre_mask]), 0)
+                if x_ulb_idx[over_thre_mask.float() == 1].nelement() != 0:
+                    selected_label[x_ulb_idx[over_thre_mask.float() == 1]
+                                   ] = p_targets_u[over_thre_mask.float() == 1]
+                over_thre_features = torch.cat(
+                    (features_x, features_u_w[over_thre_mask]), 0)
+                over_thre_features = torch.cat(
+                    (over_thre_features, features_u_s[over_thre_mask]), 0)
                 top1_high = torch.cat((y_lb, p_targets_u[over_thre_mask]), 0)
-                top1_high = torch.cat((top1_high, p_targets_u[over_thre_mask]), 0).view(-1, 1)
-                # Get features and pseudo labels of unlabeled data less than threshold
-                less_thre_mask = max_probs.lt(args.p_cutoff * (classwise_acc[p_targets_u] / (2. - classwise_acc[p_targets_u])))
-                less_thre_features = torch.cat((features_u_w[less_thre_mask], features_u_s[less_thre_mask]), 0)
-                top1_low = torch.cat((p_targets_u[less_thre_mask], p_targets_u[less_thre_mask]), 0).view(-1, 1)
+                top1_high = torch.cat(
+                    (top1_high, p_targets_u[over_thre_mask]), 0).view(-1, 1)
+                less_thre_features = torch.cat(
+                    (features_u_w[less_thre_mask], features_u_s[less_thre_mask]), 0)
+                top1_low = torch.cat(
+                    (p_targets_u[less_thre_mask], p_targets_u[less_thre_mask]), 0).view(-1, 1)
 
                 # get complementary labels
-                _, min_k_pseudo_label = pseudo_label.topk(dim=1, k=args.k, largest=False)
-                min_k_low = torch.cat((min_k_pseudo_label[less_thre_mask], min_k_pseudo_label[less_thre_mask]), 0)
+                _, min_k_pseudo_label = pseudo_label.topk(
+                    dim=1, k=int(args.k*args.num_classes), largest=False)
+                min_k_low = torch.cat(
+                    (min_k_pseudo_label[less_thre_mask], min_k_pseudo_label[less_thre_mask]), 0)
 
                 # constrcut positive pairs
                 pos1 = torch.eq(top1_high, top1_high.T).float().to(device)
-                pos1.scatter_(dim=1, index=torch.arange(pos1.shape[0]).view(-1, 1).to(device), value=0)
-                pos2 = torch.zeros(top1_high.shape[0], top1_low.shape[0]).to(device)
+                pos1.scatter_(dim=1, index=torch.arange(
+                    pos1.shape[0]).view(-1, 1).to(device), value=0)
+                pos2 = torch.zeros(
+                    top1_high.shape[0], top1_low.shape[0]).to(device)
                 pos3 = pos2.T
-                pos4 = torch.zeros(top1_low.shape[0], top1_low.shape[0]).to(device)
-                ids = torch.tensor([i for i in range(int(top1_low.shape[0] / 2))])
-                view_from_same_image_index = torch.cat((ids + top1_low.shape[0] / 2, ids), 0).view(-1, 1).to(device)
-                pos4.scatter_(dim=1, index=view_from_same_image_index.long(), value=1)
-                pos_mask = torch.cat((torch.cat((pos1, pos2), 1), torch.cat((pos3, pos4), 1)), 0)
+                pos4 = torch.zeros(
+                    top1_low.shape[0], top1_low.shape[0]).to(device)
+                ids = torch.tensor(
+                    [i for i in range(int(top1_low.shape[0] / 2))])
+                view_from_same_image_index = torch.cat(
+                    (ids + top1_low.shape[0] / 2, ids), 0).view(-1, 1).to(device)
+                pos4.scatter_(
+                    dim=1, index=view_from_same_image_index.long(), value=1)
+                pos_mask = torch.cat(
+                    (torch.cat((pos1, pos2), 1), torch.cat((pos3, pos4), 1)), 0)
 
                 # construct logits_mask, which contains positive pairs and negative pairs
                 if top1_low.shape[0] != 0 and top1_high.shape[0] != 0:
@@ -212,7 +217,7 @@ class CCL_FlexMatch:
                         dim=1, index=torch.arange(top1_high.shape[0]).view(-1, 1), value=0).to(device)
 
                     logits_mask2 = torch.sum(
-                        torch.eq(top1_high.repeat(1, args.k).repeat(1, min_k_low.shape[0])
+                        torch.eq(top1_high.repeat(1, int(args.k*args.num_classes)).repeat(1, min_k_low.shape[0])
                                  .view(top1_high.shape[0], min_k_low.shape[0], -1),
                                  min_k_low.repeat(top1_high.shape[0], 1)
                                  .view(top1_high.shape[0], min_k_low.shape[0], -1)), dim=2)
@@ -228,13 +233,17 @@ class CCL_FlexMatch:
                     logits_mask = pos4
 
                 # feature affinity
-                total_features = torch.cat((over_thre_features, less_thre_features), 0)
-                anchor_dot_contrast = torch.div(torch.matmul(total_features, total_features.T), args.temperature)
-                logits_max, _ = torch.max(anchor_dot_contrast, dim=1, keepdim=True)
+                total_features = torch.cat(
+                    (over_thre_features, less_thre_features), 0)
+                anchor_dot_contrast = torch.div(torch.matmul(
+                    total_features, total_features.T), args.temperature)
+                logits_max, _ = torch.max(
+                    anchor_dot_contrast, dim=1, keepdim=True)
                 logits_con = anchor_dot_contrast - logits_max.detach()
 
                 exp_logits = torch.exp(logits_con) * logits_mask
-                log_prob = logits_con - torch.log(exp_logits.sum(1, keepdim=True))
+                log_prob = logits_con - \
+                    torch.log(exp_logits.sum(1, keepdim=True))
 
                 mean_log_prob_pos = (pos_mask * log_prob).mean(1)
                 con_loss = - mean_log_prob_pos
@@ -244,20 +253,21 @@ class CCL_FlexMatch:
 
                 if torch.isnan(con_loss):
                     con_loss = torch.zeros(1).to(device)
-
                 total_loss = sup_loss + unsup_loss + con_loss
 
             # parameter updates
             if args.amp:
                 scaler.scale(total_loss).backward()
                 if (args.clip > 0):
-                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), args.clip)
+                    torch.nn.utils.clip_grad_norm_(
+                        self.model.parameters(), args.clip)
                 scaler.step(self.optimizer)
                 scaler.update()
             else:
                 total_loss.backward()
                 if (args.clip > 0):
-                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), args.clip)
+                    torch.nn.utils.clip_grad_norm_(
+                        self.model.parameters(), args.clip)
                 self.optimizer.step()
 
             self.scheduler.step()
@@ -269,8 +279,16 @@ class CCL_FlexMatch:
 
             # tensorboard_dict update
             tb_dict = {}
+            tb_dict['train/sup_loss'] = sup_loss.detach()
+            tb_dict['train/unsup_loss'] = unsup_loss.detach()
+            tb_dict['train/con_loss'] = con_loss.detach()
+            tb_dict['train/total_loss'] = total_loss.detach()
+            tb_dict['lr'] = self.optimizer.param_groups[0]['lr']
+            tb_dict['train/prefecth_time'] = start_batch.elapsed_time(
+                end_batch) / 1000.
+            tb_dict['train/run_time'] = start_run.elapsed_time(end_run) / 1000.
 
-            # Save model for each 1024 steps and best model for each 1024 steps
+            # Save model for each 10K steps and best model for each 1K steps
             if self.it != 0 and self.it % self.num_eval_iter == 0:
                 eval_dict = self.evaluate(args=args)
                 tb_dict.update(eval_dict)
@@ -282,8 +300,7 @@ class CCL_FlexMatch:
                 self.print_fn(
                     f"{self.it} iteration, USE_EMA: {self.ema_m != 0}, {tb_dict}, BEST_EVAL_ACC: {self.best_eval_acc}, at {self.best_eval_iter} iters")
 
-                if not args.multiprocessing_distributed or \
-                        (args.multiprocessing_distributed and args.rank % ngpus_per_node == 0):
+                if not args.multiprocessing_distributed or (args.multiprocessing_distributed and args.rank % ngpus_per_node == 0):
                     self.save_model('checkpoint.pth.tar', save_path)
                     if self.it == self.best_eval_iter:
                         self.save_model('model_best.pth', save_path)
@@ -295,7 +312,8 @@ class CCL_FlexMatch:
             start_batch.record()
 
         eval_dict = self.evaluate(args=args)
-        eval_dict.update({'eval/best_acc': self.best_eval_acc, 'eval/best_it': self.best_eval_iter})
+        eval_dict.update(
+            {'eval/best_acc': self.best_eval_acc, 'eval/best_it': self.best_eval_iter})
         return eval_dict
 
     @torch.no_grad()
@@ -378,7 +396,8 @@ class CCL_FlexMatch:
     def interleave(self, xy, batch):
         nu = len(xy) - 1
         offsets = self.interleave_offsets(batch, nu)
-        xy = [[v[offsets[p]:offsets[p + 1]] for p in range(nu + 1)] for v in xy]
+        xy = [[v[offsets[p]:offsets[p + 1]]
+               for p in range(nu + 1)] for v in xy]
         for i in range(1, nu + 1):
             xy[0][i], xy[i][i] = xy[i][i], xy[0][i]
         return [torch.cat(v, dim=0) for v in xy]

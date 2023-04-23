@@ -8,7 +8,7 @@ num_labels: 250
 num_classes: 10
 p_cutoff: 0.95
 seed: 1
-k: 7
+k: 0.7
 resume: True
 overwrite: True
 use_tensorboard: True

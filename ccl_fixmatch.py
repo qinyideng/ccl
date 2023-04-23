@@ -34,7 +34,8 @@ def main(args):
         raise Exception('already existing model: {}'.format(save_path))
     if args.resume:
         if args.load_path is None:
-            raise Exception('Resume of training requires --load_path in the args')
+            raise Exception(
+                'Resume of training requires --load_path in the args')
         if os.path.abspath(save_path) == os.path.abspath(args.load_path) and not args.overwrite:
             raise Exception('Saving & Loading pathes are same. \
                             If you want over-write, give --overwrite in the argument.')
@@ -63,7 +64,8 @@ def main(args):
         args.world_size = ngpus_per_node * args.world_size
 
         # args=(,) means the arguments of main_worker
-        mp.spawn(main_worker, nprocs=ngpus_per_node, args=(ngpus_per_node, args))
+        mp.spawn(main_worker, nprocs=ngpus_per_node,
+                 args=(ngpus_per_node, args))
     else:
         main_worker(args.gpu, ngpus_per_node, args)
 
@@ -99,7 +101,8 @@ def main_worker(gpu, ngpus_per_node, args):
     logger_level = "WARNING"
     tb_log = None
     if args.rank % ngpus_per_node == 0:
-        tb_log = TBLog(save_path, 'tensorboard', use_tensorboard=args.use_tensorboard)
+        tb_log = TBLog(save_path, 'tensorboard',
+                       use_tensorboard=args.use_tensorboard)
         logger_level = "INFO"
 
     logger = get_logger(args.save_name, save_path, logger_level)
@@ -124,22 +127,23 @@ def main_worker(gpu, ngpus_per_node, args):
                                    )
 
     model = CCL_FixMatch(_net_builder,
-                     args.num_classes,
-                     args.ema_m,
-                     args.hard_label,
-                     num_eval_iter=args.num_eval_iter,
-                     tb_log=tb_log,
-                     logger=logger)
+                         args.num_classes,
+                         args.ema_m,
+                         args.hard_label,
+                         num_eval_iter=args.num_eval_iter,
+                         tb_log=tb_log,
+                         logger=logger)
 
     logger.info(f'Number of Trainable Params: {count_parameters(model.model)}')
 
     # SET Optimizer & LR Scheduler
-    ## construct SGD and cosine lr scheduler
-    optimizer = get_optimizer(model.model, args.optim, args.lr, args.momentum, args.weight_decay)
+    # construct SGD and cosine lr scheduler
+    optimizer = get_optimizer(model.model, args.optim,
+                              args.lr, args.momentum, args.weight_decay)
     scheduler = get_cosine_schedule_with_warmup(optimizer,
                                                 args.num_train_iter,
                                                 num_warmup_steps=args.num_train_iter * 0)
-    ## set SGD and cosine lr on FixMatch
+    # set SGD and cosine lr on FixMatch
     model.set_optimizer(optimizer, scheduler)
 
     # SET Devices for (Distributed) DataParallel
@@ -157,7 +161,8 @@ def main_worker(gpu, ngpus_per_node, args):
             model.model.cuda(args.gpu)
             model.model = nn.SyncBatchNorm.convert_sync_batchnorm(model.model)
             model.model = torch.nn.parallel.DistributedDataParallel(model.model,
-                                                                    device_ids=[args.gpu],
+                                                                    device_ids=[
+                                                                        args.gpu],
                                                                     broadcast_buffers=False,
                                                                     find_unused_parameters=True)
 
@@ -224,7 +229,7 @@ def main_worker(gpu, ngpus_per_node, args):
                                           num_workers=args.num_workers,
                                           drop_last=False)
 
-    ## set DataLoader on FixMatch
+    # set DataLoader on FixMatch
     model.set_data_loader(loader_dict)
     model.set_dset(ulb_dset)
     # If args.resume, load checkpoints from args.load_path
@@ -277,7 +282,8 @@ if __name__ == "__main__":
     parser.add_argument('--epoch', type=int, default=1)
     parser.add_argument('--num_train_iter', type=int, default=2 ** 20,
                         help='total number of training iterations')
-    parser.add_argument('--num_eval_iter', type=int, default=1024, help='evaluation frequency')
+    parser.add_argument('--num_eval_iter', type=int,
+                        default=1024, help='evaluation frequency')
     parser.add_argument('-nl', '--num_labels', type=int, default=40)
     parser.add_argument('-bsz', '--batch_size', type=int, default=64)
     parser.add_argument('--uratio', type=int, default=7,
@@ -289,8 +295,9 @@ if __name__ == "__main__":
     parser.add_argument('--T', type=float, default=1.0)
     parser.add_argument('--p_cutoff', type=float, default=0.95)
     parser.add_argument('--temperature', type=float, default=0.07)
-    parser.add_argument('--ema_m', type=float, default=0.999, help='ema momentum for eval_model')
-    parser.add_argument('--k', type=int, default=7)
+    parser.add_argument('--ema_m', type=float, default=0.999,
+                        help='ema momentum for eval_model')
+    parser.add_argument('--k', type=float, default=0.7)
     parser.add_argument('--use_DA', type=str2bool, default=False)
     parser.add_argument('-w', '--thresh_warmup', type=str2bool, default=True)
 
@@ -301,7 +308,8 @@ if __name__ == "__main__":
     parser.add_argument('--lr', type=float, default=3e-2)
     parser.add_argument('--momentum', type=float, default=0.9)
     parser.add_argument('--weight_decay', type=float, default=5e-4)
-    parser.add_argument('--amp', type=str2bool, default=False, help='use mixed precision training or not')
+    parser.add_argument('--amp', type=str2bool, default=False,
+                        help='use mixed precision training or not')
     parser.add_argument('--clip', type=float, default=0)
     '''
     Backbone Net Configurations
@@ -328,7 +336,7 @@ if __name__ == "__main__":
     multi-GPUs & Distrbitued Training
     '''
 
-    ## args for distributed training (from https://github.com/pytorch/examples/blob/master/imagenet/main.py)
+    # args for distributed training (from https://github.com/pytorch/examples/blob/master/imagenet/main.py)
     parser.add_argument('--world-size', default=1, type=int,
                         help='number of nodes for distributed training')
     parser.add_argument('--rank', default=0, type=int,

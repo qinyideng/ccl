@@ -7,7 +7,7 @@ dataset: cifar100
 num_labels: 2500
 num_classes: 100
 seed: 2
-k: 50
+k: 0.7
 resume: True
 overwrite: True
 use_tensorboard: True
