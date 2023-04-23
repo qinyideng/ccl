@@ -57,9 +57,9 @@ python ccl_flexmatch.py --c config/ccl_flexmatch/stl10/ccl_flexmatch_stl10_20_se
         <td>74.92 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar10_10_acc.74.92.pth">download</a></td>
         <td>89.98 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar10_20_acc.89.98.pth">download</a></td>
         <td>95.07 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar10_40_acc.95.07.pth">download</a></td>
-        <td>47.76 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_stl10_10_acc.47.76.pth">download</a></td>
         <td>-</td>
         <td>54.41 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar100_400_acc.54.41.pth">download</a></td>
+        <td>47.76 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_stl10_10_acc.47.76.pth">download</a></td>
         <td>53.23 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_stl10_20_acc.53.23.pth">download</a></td>
     </tr>
     <tr>
@@ -82,10 +82,8 @@ CCL can also achieve a certain accuracy gain effect under the more labeled data 
         <td colspan="2">CIFAR-100</td>
     </tr>
     <tr>
-        <td>40</td>
         <td>250</td>
         <td>4000</td>
-        <td>400</td>
         <td>2500</td>
         <td>10000</td>
     </tr>
