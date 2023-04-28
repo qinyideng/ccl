@@ -54,13 +54,13 @@ python ccl_flexmatch.py --c config/ccl_flexmatch/stl10/ccl_flexmatch_stl10_20_se
     </tr>
     <tr>
         <td>CCL-FixMatch</td>
-        <td>74.92 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar10_10_acc.74.92.pth">download</a></td>
-        <td>89.98 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar10_20_acc.89.98.pth">download</a></td>
-        <td>95.07 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar10_40_acc.95.07.pth">download</a></td>
+        <td>74.92 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar10_10_seed0_acc.74.92.pth">download</a></td>
+        <td>89.98 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar10_20_seed0_acc.89.98.pth">download</a></td>
+        <td>95.07 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar10_40_seed2_acc.95.07.pth">download</a></td>
         <td>-</td>
-        <td>54.41 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar100_400_acc.54.41.pth">download</a></td>
-        <td>47.76 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_stl10_10_acc.47.76.pth">download</a></td>
-        <td>53.23 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_stl10_20_acc.53.23.pth">download</a></td>
+        <td>54.41 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar100_400_seed0_acc.54.41.pth">download</a></td>
+        <td>47.76 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_stl10_10_seed0_acc.47.76.pth">download</a></td>
+        <td>53.23 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_stl10_20_seed0_acc.53.23.pth">download</a></td>
     </tr>
     <tr>
         <td>CCL-FlexMatch</td>
@@ -89,17 +89,17 @@ CCL can also achieve a certain accuracy gain effect under the more labeled data 
     </tr>
     <tr>
         <td>CCL-FixMatch</td>
-        <td>95.18 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar10_250_acc.95.18.pth">download</a></td>
-        <td>95.87 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar10_4000_acc.95.87.pth">download</a></td>
-        <td>72.19 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar100_2500_acc.72.19.pth">download</a></td>
-        <td>78.11 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar100_10000_acc.78.11.pth">download</a></td>
+        <td>95.18 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar10_250_seed0_acc.95.18.pth">download</a></td>
+        <td>95.87 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar10_4000_seed1_acc.95.87.pth">download</a></td>
+        <td>72.19 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar100_2500_seed1_acc.72.19.pth">download</a></td>
+        <td>78.11 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar100_10000_seed0_acc.78.11.pth">download</a></td>
     </tr>
     <tr>
         <td>CCL-FlexMatch</td>
-        <td>95.33 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_flexmatch_cifar10_250_acc.95.33.pth">download</a></td>
-        <td>95.92 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_flexmatch_cifar10_4000_acc.95.92.pth">download</a></td>
-        <td>73.77 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_flexmatch_cifar100_2500_acc.73.77.pth">download</a></td>
-        <td>78.17 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_flexmatch_cifar100_10000_acc.78.17.pth">download</a></td>
+        <td>95.33 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_flexmatch_cifar10_250_seed0_acc.95.33.pth">download</a></td>
+        <td>95.92 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_flexmatch_cifar10_4000_seed2_acc.95.92.pth">download</a></td>
+        <td>73.77 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_flexmatch_cifar100_2500_seed2_acc.73.77.pth">download</a></td>
+        <td>78.17 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_flexmatch_cifar100_10000_seed1_acc.78.17.pth">download</a></td>
     </tr>
 </table>
 
@@ -120,12 +120,12 @@ CCL can also achieve a certain accuracy gain effect under the more labeled data 
     </tr>
     <tr>
         <td>CCL-FixMatch</td>
-        <td>71.38 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_stl10_40_acc.71.38.pth">download</a></td>
-        <td>92.25 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_stl10_250_acc.92.25.pth">download</a></td>
-        <td>94.13 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_stl10_1000_acc.94.13.pth">download</a></td>
-        <td>98.04 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_svhn_40_acc.98.04.pth">download</a></td>
-        <td>98.04 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_svhn_250_acc.98.04.pth">download</a></td>
-        <td>98.11 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_svhn_1000_acc.98.11.pth">download</a></td>
+        <td>71.38 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_stl10_40_seed1_acc.71.38.pth">download</a></td>
+        <td>92.25 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_stl10_250_seed1_acc.92.25.pth">download</a></td>
+        <td>94.13 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_stl10_1000_seed0_acc.94.13.pth">download</a></td>
+        <td>98.04 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_svhn_40_seed0_acc.98.04.pth">download</a></td>
+        <td>98.04 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_svhn_250_seed2_acc.98.04.pth">download</a></td>
+        <td>98.11 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_svhn_1000_seed0_acc.98.11.pth">download</a></td>
     </tr>
     <tr>
         <td>CCL-FlexMatch</td>
