@@ -57,7 +57,7 @@ python ccl_flexmatch.py --c config/ccl_flexmatch/stl10/ccl_flexmatch_stl10_20_se
         <td>74.92 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar10_10_seed0_acc.74.92.pth">download</a></td>
         <td>89.98 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar10_20_seed0_acc.89.98.pth">download</a></td>
         <td>95.07 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar10_40_seed2_acc.95.07.pth">download</a></td>
-        <td>-</td>
+        <td>43.83 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar100_200_seed0_acc.43.83.pth">download</td>
         <td>54.41 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_cifar100_400_seed0_acc.54.41.pth">download</a></td>
         <td>47.76 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_stl10_10_seed0_acc.47.76.pth">download</a></td>
         <td>53.23 <a href ="https://github.com/qinyideng/ccl/releases/download/v0.1/ccl_fixmatch_stl10_20_seed0_acc.53.23.pth">download</a></td>
